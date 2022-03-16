@@ -5,15 +5,15 @@ import { Ingredient } from '../shared/ingredient.model';
   providedIn: 'root'
 })
 export class ShoppingListService {
+  ingredientAdded = new EventEmitter<Ingredient>();
+
   private shoppingList: Ingredient[] = [
     new Ingredient("Eggs", 10),
     new Ingredient("Apples", 5)
   ];
-
-  ingredientAdded = new EventEmitter<Ingredient>();
   
   constructor() { }
-
+  
   getShoppingList() {
     return this.shoppingList.slice();
   }
