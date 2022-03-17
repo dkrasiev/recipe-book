@@ -1,0 +1,4 @@
+<p *ngIf="editMode; else nonEditMode">You entered to edit mode!</p>
+<ng-template #nonEditMode>
+  <p>Creating new recipe!</p>
+</ng-template>
