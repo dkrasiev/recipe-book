@@ -1,7 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Recipe } from './recipe.model';
-import { RecipeService } from './recipe.service';
 
 @Component({
   selector: 'app-recipes',
@@ -9,13 +6,8 @@ import { RecipeService } from './recipe.service';
   styleUrls: ['./recipes.component.css']
 })
 export class RecipesComponent implements OnInit {
-  selectedRecipe: Recipe;
-
-  constructor(
-    private recipeService: RecipeService,
-    private route: ActivatedRoute) { }
+  constructor() { }
 
   ngOnInit(): void {
-    this.selectedRecipe = this.recipeService.getRecipe(+this.route.snapshot.params['id']);
   }
 }
