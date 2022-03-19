@@ -1,4 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild, EventEmitter, Output } from '@angular/core';
+import { NgForm } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { Ingredient } from 'src/app/shared/ingredient.model';
 import { __importDefault } from 'tslib';
 import { ShoppingListService } from '../shopping-list.service';
@@ -9,28 +11,48 @@ import { ShoppingListService } from '../shopping-list.service';
   styleUrls: ['./shopping-edit.component.css']
 })
 export class ShoppingEditComponent implements OnInit {
-  @ViewChild('nameInput', {static: false}) nameInputRef: ElementRef;
-  @ViewChild('amountInput', {static: false}) amountInputRef: ElementRef;
+  @ViewChild('f') slForm: NgForm;
+  subscription: Subscription;
+  editMode = false;
+  itemId: number;
 
   constructor(private shoppingListService: ShoppingListService) { }
 
   ngOnInit(): void {
+    this.subscription = this.shoppingListService.startedEditing.subscribe(
+      (id: number) => {
+        this.editMode = true;
+        this.itemId = id;
+        const editingItem = this.shoppingListService.getIngredient(this.itemId);
+        this.slForm.setValue({
+          name: editingItem.name,
+          amount: editingItem.amount
+        });
+      }
+    );
   }
 
-  onAddItem() {
-    const ingredientName = this.nameInputRef.nativeElement.value;
-    const ingredientAmount = this.amountInputRef.nativeElement.value;
-    const newIngredient = new Ingredient(ingredientName, ingredientAmount);
+  onAddItem(form: NgForm) {
+    const value = form.value;
+    const newIngredient = new Ingredient(value.name, value.amount);
 
-    this.shoppingListService.addIngredient(newIngredient);
+    if (this.editMode) {
+      this.shoppingListService.updateIngredient(this.itemId, newIngredient)
+    } else {
+      this.shoppingListService.addIngredient(newIngredient);
+    }
+
+    this.onClear();
   }
 
-  onDelete() {
-
+  onDeleteItem() {
+    this.shoppingListService.deleteIngredient(this.itemId);
+    this.onClear();
   }
 
   onClear() {
-    this.amountInputRef.nativeElement.value = '';
-    this.nameInputRef.nativeElement.value = '';
+    this.editMode = false;
+    this.slForm.reset();
   }
+
 }
