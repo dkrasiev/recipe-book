@@ -71,9 +71,7 @@ export class RecipeEditComponent implements OnInit {
   }
 
   onDeleteIngredient(id: number) {
-    // let ingredients: Ingredient[] = this.recipeForm.;
-
-    // (<FormArray>this.recipeForm.value['ingredients']).splice(id, 1);
+    (<FormArray>this.recipeForm.get('ingredients')).controls.splice(id, 1);
   }
 
   onSubmit() {
