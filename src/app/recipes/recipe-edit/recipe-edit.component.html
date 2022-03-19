@@ -86,7 +86,7 @@
               </button>
             </div>
           </div>
-          <hr>
+          <hr />
           <div class="row">
             <div class="col-xs-12">
               <button
@@ -102,7 +102,11 @@
       </div>
       <div class="row" style="margin-top: 10px">
         <div class="col-xs-12">
-          <button type="submit" class="btn btn-success">
+          <button
+            [disabled]="recipeForm.invalid"
+            type="submit"
+            class="btn btn-success"
+          >
             {{ editMode ? "Update" : "Add" }}
           </button>
           <button class="btn btn-danger" (click)="onCancel()">Cancel</button>
