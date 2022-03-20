@@ -8,7 +8,7 @@ import { RecipeService } from '../recipe.service';
 @Component({
   selector: 'app-recipe-detail',
   templateUrl: './recipe-detail.component.html',
-  styleUrls: ['./recipe-detail.component.css']
+  styleUrls: ['./recipe-detail.component.css'],
 })
 export class RecipeDetailComponent implements OnInit {
   recipeId: number;
@@ -18,15 +18,14 @@ export class RecipeDetailComponent implements OnInit {
     private shoppingListService: ShoppingListService,
     private recipeService: RecipeService,
     private route: ActivatedRoute,
-    private router: Router) { }
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    this.route.params.subscribe(
-      (params: Params) => {
-        this.recipeId = +params['id'];
-        this.recipe = this.recipeService.getRecipe(this.recipeId);
-      }
-    );
+    this.route.params.subscribe((params: Params) => {
+      this.recipeId = +params['id'];
+      this.recipe = this.recipeService.getRecipe(this.recipeId);
+    });
   }
 
   onAddToShoppingList() {

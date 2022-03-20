@@ -1,7 +1,7 @@
 import { Directive, HostBinding, HostListener } from '@angular/core';
 
 @Directive({
-  selector: '[appDropdown]'
+  selector: '[appDropdown]',
 })
 export class DropdownDirective {
   @HostBinding('class.open') dropdownState: boolean = false;
@@ -9,7 +9,6 @@ export class DropdownDirective {
   @HostListener('click') toggleDropdown() {
     this.dropdownState = !this.dropdownState;
   }
-  
-  constructor() { }
 
+  constructor() {}
 }
