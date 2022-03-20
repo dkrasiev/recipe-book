@@ -1,5 +1,6 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { Ingredient } from '../shared/ingredient.model';
 import { ShoppingListService } from '../shopping-list/shopping-list.service';
 import { Recipe } from './recipe.model';
@@ -25,7 +26,39 @@ export class RecipeService {
     ),
   ];
 
-  constructor() {}
+  constructor(private http: HttpClient) {}
+
+  fetchRecipes() {
+    this.http
+      .get<{ [id: string]: Recipe[] }>(
+        'https://recipe-book-62867-default-rtdb.europe-west1.firebasedatabase.app/recipes.json'
+      )
+      .subscribe((recipes) => {
+        for (const key in recipes) {
+          this.recipes = recipes[key];
+        }
+
+        this.recipesChanged.next();
+      });
+  }
+
+  saveRecipes() {
+    this.http
+      .delete(
+        'https://recipe-book-62867-default-rtdb.europe-west1.firebasedatabase.app/recipes.json'
+      )
+      .subscribe();
+
+    this.http
+      .post<Recipe[]>(
+        'https://recipe-book-62867-default-rtdb.europe-west1.firebasedatabase.app/recipes.json',
+        this.recipes
+      )
+      .subscribe((responseData) => {
+        console.log(responseData);
+        alert('Recipes was saved');
+      });
+  }
 
   getRecipes() {
     return this.recipes.slice();
