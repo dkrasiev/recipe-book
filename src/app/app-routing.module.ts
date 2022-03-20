@@ -1,3 +1,4 @@
+import { HashLocationStrategy } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { RecipeDetailComponent } from './recipes/recipe-detail/recipe-detail.component';
@@ -24,7 +25,7 @@ const appRouts: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(appRouts)],
+  imports: [RouterModule.forRoot(appRouts, { useHash: true })],
   exports: [RouterModule],
 })
 export class AppRoutingModule {}

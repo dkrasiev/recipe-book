@@ -6,6 +6,9 @@
 <hr />
 <div class="row">
   <div class="col-xs-12">
+    <p *ngIf="recipes.length < 1">
+      Here will be your recipes! Try to create one or fetch data
+    </p>
     <app-recipe-item
       *ngFor="let recipeElement of recipes; let i = index"
       [recipeId]="i"
