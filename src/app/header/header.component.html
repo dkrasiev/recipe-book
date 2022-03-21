@@ -21,6 +21,14 @@
             <li><a (click)="onFetchData()">Fetch Data</a></li>
           </ul>
         </li> -->
+        <li class="nav navbar-nav" *ngIf="recipesSavedMessage">
+          <a style="cursor: default">Recipes saved!</a>
+        </li>
+        <li class="nav navbar-nav">
+          <a (click)="toggleAutosave()">
+            Autosave is {{ autosave ? "on" : "off" }}
+          </a>
+        </li>
         <li class="nav navbar-nav">
           <a (click)="onSaveData()">Save</a>
         </li>

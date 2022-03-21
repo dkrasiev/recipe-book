@@ -1,11 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, tap } from 'rxjs';
+import { map, Subject, tap } from 'rxjs';
 import { Recipe } from './recipe.model';
 import { RecipeService } from './recipe.service';
 
 @Injectable({ providedIn: 'root' })
 export class DataStorageService {
+  recipesSaved = new Subject<void>();
+
   constructor(private http: HttpClient, private recipeService: RecipeService) {}
 
   fetchRecipes() {
@@ -36,6 +38,8 @@ export class DataStorageService {
         'https://recipe-book-62867-default-rtdb.europe-west1.firebasedatabase.app/recipes.json',
         recipes
       )
-      .subscribe(() => alert('Recipes saved'));
+      .subscribe(() => {
+        this.recipesSaved.next();
+      });
   }
 }
