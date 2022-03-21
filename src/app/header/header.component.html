@@ -12,7 +12,7 @@
         </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li class="dropdown" appDropdown>
+        <!-- <li class="dropdown" appDropdown>
           <a class="dropdown-toggle" role="button"
             >Manage <span class="caret"></span
           ></a>
@@ -20,6 +20,12 @@
             <li><a (click)="onSaveData()">Save Data</a></li>
             <li><a (click)="onFetchData()">Fetch Data</a></li>
           </ul>
+        </li> -->
+        <li class="nav navbar-nav">
+          <a (click)="onSaveData()">Save</a>
+        </li>
+        <li class="nav navbar-nav">
+          <a (click)="onFetchData()">Load</a>
         </li>
       </ul>
     </div>

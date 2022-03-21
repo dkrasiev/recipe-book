@@ -25,6 +25,8 @@ export class RecipeDetailComponent implements OnInit {
     this.route.params.subscribe((params: Params) => {
       this.recipeId = +params['id'];
       this.recipe = this.recipeService.getRecipe(this.recipeId);
+
+      if (!this.recipe) this.router.navigate(['/recipes']);
     });
   }
 
@@ -35,7 +37,7 @@ export class RecipeDetailComponent implements OnInit {
   onDeleteRecipe() {
     if (confirm('Do you really want to delete this recipe?')) {
       this.recipeService.deleteRecipe(this.recipeId);
-      this.router.navigate(['../'], { relativeTo: this.route });
+      this.router.navigate(['/recipes']);
     }
   }
 }

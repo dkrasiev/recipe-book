@@ -1,5 +1,5 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable, OnInit } from '@angular/core';
+import { Injectable } from '@angular/core';
+
 import { Subject } from 'rxjs';
 import { Recipe } from './recipe.model';
 
@@ -11,39 +11,7 @@ export class RecipeService {
 
   private recipes: Recipe[] = [];
 
-  constructor(private http: HttpClient) {}
-
-  fetchRecipes() {
-    this.http
-      .get<{ [id: string]: Recipe[] }>(
-        'https://recipe-book-62867-default-rtdb.europe-west1.firebasedatabase.app/recipes.json'
-      )
-      .subscribe((recipes) => {
-        for (const key in recipes) {
-          this.recipes = recipes[key];
-        }
-
-        this.recipesChanged.next();
-      });
-  }
-
-  saveRecipes() {
-    this.http
-      .delete(
-        'https://recipe-book-62867-default-rtdb.europe-west1.firebasedatabase.app/recipes.json'
-      )
-      .subscribe();
-
-    this.http
-      .post<Recipe[]>(
-        'https://recipe-book-62867-default-rtdb.europe-west1.firebasedatabase.app/recipes.json',
-        this.recipes
-      )
-      .subscribe((responseData) => {
-        console.log(responseData);
-        alert('Recipes was saved');
-      });
-  }
+  constructor() {}
 
   getRecipes() {
     return this.recipes.slice();
@@ -51,6 +19,11 @@ export class RecipeService {
 
   getRecipe(id: number) {
     return this.recipes[id];
+  }
+
+  setRecipes(recipes: Recipe[]) {
+    this.recipes = recipes;
+    this.recipesChanged.next();
   }
 
   deleteRecipe(id: number) {
