@@ -10,6 +10,7 @@ import { RecipeService } from '../recipes/recipe.service';
 export class HeaderComponent implements OnInit {
   autosave: boolean = false;
   recipesSavedMessage: boolean = false;
+  messageTimeout;
 
   constructor(
     private dataStorageService: DataStorageService,
@@ -40,7 +41,12 @@ export class HeaderComponent implements OnInit {
 
   showRecipesSavedMessage() {
     this.recipesSavedMessage = true;
-    setTimeout(() => {
+
+    if (this.messageTimeout) {
+      clearTimeout(this.messageTimeout);
+    }
+
+    this.messageTimeout = setTimeout(() => {
       this.recipesSavedMessage = false;
     }, 2000);
   }
