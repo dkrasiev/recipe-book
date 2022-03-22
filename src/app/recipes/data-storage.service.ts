@@ -1,13 +1,13 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, Subject, tap } from 'rxjs';
+import { exhaustMap, map, Subject, take, tap } from 'rxjs';
+import { AuthService } from '../auth/auth.service';
+import { User } from '../auth/user.model';
 import { Recipe } from './recipe.model';
 import { RecipeService } from './recipe.service';
 
 @Injectable({ providedIn: 'root' })
 export class DataStorageService {
-  recipesSaved = new Subject<void>();
-
   constructor(private http: HttpClient, private recipeService: RecipeService) {}
 
   fetchRecipes() {
@@ -33,13 +33,9 @@ export class DataStorageService {
   saveRecipes() {
     const recipes = this.recipeService.getRecipes();
 
-    this.http
-      .put<Recipe[]>(
-        'https://recipe-book-62867-default-rtdb.europe-west1.firebasedatabase.app/recipes.json',
-        recipes
-      )
-      .subscribe(() => {
-        this.recipesSaved.next();
-      });
+    return this.http.put<Recipe[]>(
+      'https://recipe-book-62867-default-rtdb.europe-west1.firebasedatabase.app/recipes.json',
+      recipes
+    );
   }
 }

@@ -1,20 +1,33 @@
-import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { AuthService } from '../auth/auth.service';
 import { DataStorageService } from '../recipes/data-storage.service';
 import { RecipeService } from '../recipes/recipe.service';
 
 @Component({
   selector: 'app-header',
   templateUrl: 'header.component.html',
+  styleUrls: ['header.component.css'],
 })
-export class HeaderComponent implements OnInit {
-  autosave: boolean = false;
-  recipesSavedMessage: boolean = false;
+export class HeaderComponent implements OnInit, OnDestroy {
+  userSubscription: Subscription;
+  recipesSubscription: Subscription;
+  dataStorageSubscription: Subscription;
   messageTimeout;
+
+  autosave: boolean = false;
+  username: string = null;
+  message: string = null;
+
+  get isAuthenticated() {
+    return !!this.username;
+  }
 
   constructor(
     private dataStorageService: DataStorageService,
-    private recipeService: RecipeService
+    private recipeService: RecipeService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -22,9 +35,19 @@ export class HeaderComponent implements OnInit {
       if (this.autosave) this.onSaveData();
     });
 
-    this.dataStorageService.recipesSaved.subscribe(() => {
-      this.showRecipesSavedMessage();
+    this.authService.user.subscribe((user) => {
+      if (user) {
+        this.username = user.email;
+      } else {
+        this.username = null;
+      }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.userSubscription.unsubscribe();
+    this.recipesSubscription.unsubscribe();
+    this.dataStorageSubscription.unsubscribe();
   }
 
   toggleAutosave() {
@@ -32,22 +55,32 @@ export class HeaderComponent implements OnInit {
   }
 
   onSaveData() {
-    this.dataStorageService.saveRecipes();
+    this.dataStorageService.saveRecipes().subscribe({
+      next: () => this.showMessage('Saved!'),
+      error: (e) => this.showMessage(e.statusText),
+    });
   }
 
   onFetchData() {
-    this.dataStorageService.fetchRecipes().subscribe();
+    this.dataStorageService.fetchRecipes().subscribe({
+      next: () => this.showMessage('Loaded!'),
+      error: (e) => this.showMessage(e.statusText),
+    });
   }
 
-  showRecipesSavedMessage() {
-    this.recipesSavedMessage = true;
+  onLogout() {
+    this.authService.logout();
+  }
+
+  showMessage(message: string, timeout: number = 2000) {
+    this.message = message;
 
     if (this.messageTimeout) {
       clearTimeout(this.messageTimeout);
     }
 
     this.messageTimeout = setTimeout(() => {
-      this.recipesSavedMessage = false;
-    }, 2000);
+      this.message = null;
+    }, timeout);
   }
 }

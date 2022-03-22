@@ -17,7 +17,7 @@ import { RecipeService } from '../recipe.service';
 })
 export class RecipeListComponent implements OnInit, OnDestroy {
   @Output() recipeWasSelected = new EventEmitter<Recipe>();
-  subscription: Subscription;
+  recipeSubscription: Subscription;
 
   recipes: Recipe[] = [];
 
@@ -26,12 +26,12 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.recipes = this.recipeService.getRecipes();
 
-    this.subscription = this.recipeService.recipesChanged.subscribe(
+    this.recipeSubscription = this.recipeService.recipesChanged.subscribe(
       () => (this.recipes = this.recipeService.getRecipes())
     );
   }
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
+    this.recipeSubscription.unsubscribe();
   }
 }
