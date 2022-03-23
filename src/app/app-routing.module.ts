@@ -1,7 +1,5 @@
 import { NgModule } from '@angular/core';
-import { PreloadAllModules, PreloadingStrategy, RouterModule, Routes } from '@angular/router';
-
-import { AuthComponent } from './auth/auth.component';
+import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 
 const appRouts: Routes = [
   { path: '', redirectTo: 'recipes', pathMatch: 'full' },
