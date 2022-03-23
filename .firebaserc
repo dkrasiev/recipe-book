@@ -1,5 +1,14 @@
 {
   "projects": {
     "default": "recipe-book-62867"
+  },
+  "targets": {
+    "recipe-book-62867": {
+      "hosting": {
+        "recipe-book": [
+          "recipe-book-62867"
+        ]
+      }
+    }
   }
 }
