@@ -1,22 +1,37 @@
-import { Component } from '@angular/core';
+import {
+  Component,
+  ComponentFactoryResolver,
+  OnDestroy,
+  ViewChild,
+} from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Observable, take, tap } from 'rxjs';
+import { Observable, Subscription, take } from 'rxjs';
 import { AuthResponseData, AuthService } from './auth.service';
+import { AlertComponent } from '../shared/alert/alert.component';
+import { PlaceholderDirective } from '../shared/placeholder.directive';
 
 @Component({
   selector: 'app-auth',
   templateUrl: './auth.component.html',
   styleUrls: ['./auth.component.css'],
 })
-export class AuthComponent {
+export class AuthComponent implements OnDestroy {
+  @ViewChild(PlaceholderDirective, { static: false })
+  alertPlaceholder: PlaceholderDirective;
+  closeSub: Subscription;
+
   isLoginMode = true;
   isLoading = false;
   error: string = null;
 
   constructor(private authService: AuthService, private router: Router) {}
 
-  onClearError() {
+  ngOnDestroy(): void {
+    if (this.closeSub) this.closeSub.unsubscribe();
+  }
+
+  onHandleError() {
     this.error = null;
   }
 
@@ -54,8 +69,21 @@ export class AuthComponent {
       },
       error: (e) => {
         this.error = e.message;
+        this.showError(e.message);
         this.isLoading = false;
       },
+    });
+  }
+
+  showError(message: string) {
+    this.alertPlaceholder.viewContainerRef.clear();
+    const alertRef =
+      this.alertPlaceholder.viewContainerRef.createComponent(AlertComponent);
+
+    alertRef.instance.message = message;
+    this.closeSub = alertRef.instance.close.subscribe(() => {
+      this.closeSub.unsubscribe();
+      this.alertPlaceholder.viewContainerRef.clear();
     });
   }
 }
