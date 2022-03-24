@@ -6,7 +6,6 @@ import {
   Output,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
-
 import { Recipe } from '../recipe.model';
 import { RecipeService } from '../recipe.service';
 

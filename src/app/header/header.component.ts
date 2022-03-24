@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { DataStorageService } from '../recipes/data-storage.service';
@@ -29,7 +28,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private dataStorageService: DataStorageService,
     private recipeService: RecipeService,
     private authService: AuthService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.recipeService.recipesChanged.subscribe(() => {

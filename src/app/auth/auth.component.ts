@@ -1,14 +1,10 @@
-import {
-  Component,
-  OnDestroy,
-  ViewChild,
-} from '@angular/core';
+import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable, Subscription, take } from 'rxjs';
-import { AuthResponseData, AuthService } from './auth.service';
 import { AlertComponent } from '../shared/alert/alert.component';
 import { PlaceholderDirective } from '../shared/placeholder.directive';
+import { AuthResponseData, AuthService } from './auth.service';
 
 @Component({
   selector: 'app-auth',
@@ -24,7 +20,7 @@ export class AuthComponent implements OnDestroy {
   isLoading = false;
   error: string = null;
 
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(private authService: AuthService, private router: Router) {}
 
   ngOnDestroy(): void {
     if (this.closeSub) this.closeSub.unsubscribe();
