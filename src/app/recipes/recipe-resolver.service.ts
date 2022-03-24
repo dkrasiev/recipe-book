@@ -13,17 +13,10 @@ import { RecipeService } from './recipe.service';
 })
 export class RecipeResolverService implements Resolve<Recipe[]> {
   constructor(
-    private dataStorageService: DataStorageService,
-    private recipeService: RecipeService
-  ) {}
+    private dataStorageService: DataStorageService
+  ) { }
 
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    const recipes = this.recipeService.getRecipes();
-
-    if (recipes.length < 1) {
-      return this.dataStorageService.fetchRecipes();
-    } else {
-      return recipes;
-    }
+    return this.dataStorageService.fetchRecipes();
   }
 }
