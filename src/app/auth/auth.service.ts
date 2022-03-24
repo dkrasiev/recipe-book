@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { catchError, BehaviorSubject, tap, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, tap, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { User } from './user.model';
 
@@ -21,7 +21,11 @@ export class AuthService {
   user = new BehaviorSubject<User>(null);
   logoutTimer;
 
-  constructor(private http: HttpClient, private router: Router, private afAuth: AngularFireAuth) { }
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private afAuth: AngularFireAuth
+  ) {}
 
   googleAuth() {
     this.authLogin(getAuth(), new GoogleAuthProvider());
@@ -36,7 +40,8 @@ export class AuthService {
         result.user.getIdToken().then((token) => {
           this.handleAuthentication(email, id, token, 3600, photoURL);
         });
-      }).catch((error) => {
+      })
+      .catch((error) => {
         // Handle Errors here.
         const errorCode = error.code;
         const errorMessage = error.message;
@@ -48,11 +53,11 @@ export class AuthService {
       });
   }
 
-
   emailSignup(email: string, password: string) {
     return this.http
       .post<AuthResponseData>(
-        'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + environment.firebase.apiKey,
+        'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' +
+          environment.firebase.apiKey,
         {
           email: email,
           password: password,
@@ -65,7 +70,8 @@ export class AuthService {
   emailLogin(email: string, password: string) {
     return this.http
       .post<AuthResponseData>(
-        'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + environment.firebase.apiKey,
+        'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' +
+          environment.firebase.apiKey,
         {
           email: email,
           password: password,
