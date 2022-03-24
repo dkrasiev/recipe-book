@@ -18,6 +18,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   autosave: boolean = false;
   username: string = null;
+  photoURL: string = null;
   message: string = null;
 
   get isAuthenticated() {
@@ -28,7 +29,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private dataStorageService: DataStorageService,
     private recipeService: RecipeService,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.recipeService.recipesChanged.subscribe(() => {
@@ -38,8 +39,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.authService.user.subscribe((user) => {
       if (user) {
         this.username = user.email;
+        if (user.photoURL) {
+          this.photoURL = user.photoURL;
+        }
       } else {
         this.username = null;
+        this.photoURL = null;
       }
     });
   }

@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, tap } from 'rxjs';
+import { environment } from 'src/environments/environment';
 import { Recipe } from './recipe.model';
 import { RecipeService } from './recipe.service';
 
@@ -11,7 +12,7 @@ export class DataStorageService {
   fetchRecipes() {
     return this.http
       .get<Recipe[]>(
-        'https://recipe-book-62867-default-rtdb.europe-west1.firebasedatabase.app/recipes.json'
+        environment.firebase.databaseURL + '/recipes.json'
       )
       .pipe(
         map((recipes) => {
@@ -32,7 +33,7 @@ export class DataStorageService {
     const recipes = this.recipeService.getRecipes();
 
     return this.http.put<Recipe[]>(
-      'https://recipe-book-62867-default-rtdb.europe-west1.firebasedatabase.app/recipes.json',
+      environment.firebase.databaseURL + '/recipes.json',
       recipes
     );
   }

@@ -1,8 +1,9 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { jsDocComment } from '@angular/compiler';
 import { Injectable } from '@angular/core';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
-import { catchError, Subject, BehaviorSubject, tap, throwError } from 'rxjs';
+import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { catchError, BehaviorSubject, tap, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { User } from './user.model';
 
@@ -20,12 +21,38 @@ export class AuthService {
   user = new BehaviorSubject<User>(null);
   logoutTimer;
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private http: HttpClient, private router: Router, private afAuth: AngularFireAuth) { }
 
-  signup(email: string, password: string) {
+  googleAuth() {
+    this.authLogin(getAuth(), new GoogleAuthProvider());
+  }
+
+  private authLogin(auth, provider) {
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        const email = result.user.email;
+        const id = result.user.uid;
+        const photoURL = result.user.photoURL;
+        result.user.getIdToken().then((token) => {
+          this.handleAuthentication(email, id, token, 3600, photoURL);
+        });
+      }).catch((error) => {
+        // Handle Errors here.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // The email of the user's account used.
+        const email = error.email;
+        // The AuthCredential type that was used.
+        const credential = GoogleAuthProvider.credentialFromError(error);
+        // ...
+      });
+  }
+
+
+  emailSignup(email: string, password: string) {
     return this.http
       .post<AuthResponseData>(
-        'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + environment.APIkey,
+        'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + environment.firebase.apiKey,
         {
           email: email,
           password: password,
@@ -35,10 +62,10 @@ export class AuthService {
       .pipe(catchError(this.handleError));
   }
 
-  login(email: string, password: string) {
+  emailLogin(email: string, password: string) {
     return this.http
       .post<AuthResponseData>(
-        'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + environment.APIkey,
+        'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + environment.firebase.apiKey,
         {
           email: email,
           password: password,
@@ -70,6 +97,7 @@ export class AuthService {
       id: string;
       _token: string;
       _tokenExpirationDate: string;
+      photoURL: string;
     } = JSON.parse(localStorage.getItem('userData'));
 
     if (!userData) {
@@ -80,7 +108,8 @@ export class AuthService {
       userData.email,
       userData.id,
       userData._token,
-      new Date(userData._tokenExpirationDate)
+      new Date(userData._tokenExpirationDate),
+      userData.photoURL
     );
 
     if (loadedUser.token) {
@@ -105,11 +134,12 @@ export class AuthService {
     email: string,
     userId: string,
     token: string,
-    expiresIn: number
+    expiresIn: number,
+    photoURL: string = null
   ) {
     const expirationDate = new Date(new Date().getTime() + expiresIn * 1000);
 
-    const user = new User(email, userId, token, expirationDate);
+    const user = new User(email, userId, token, expirationDate, photoURL);
 
     this.user.next(user);
     this.autoLogout(expiresIn * 1000);

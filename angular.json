@@ -99,6 +99,16 @@
             ],
             "scripts": []
           }
+        },
+        "deploy": {
+          "builder": "@angular/fire:deploy",
+          "options": {
+            "prerender": false,
+            "ssr": false,
+            "browserTarget": "recipe-book:build:production",
+            "firebaseProject": "recipe-book-62867",
+            "firebaseHostingSite": "recipe-book-62867"
+          }
         }
       }
     }

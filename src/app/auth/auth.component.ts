@@ -1,6 +1,5 @@
 import {
   Component,
-  ComponentFactoryResolver,
   OnDestroy,
   ViewChild,
 } from '@angular/core';
@@ -25,10 +24,14 @@ export class AuthComponent implements OnDestroy {
   isLoading = false;
   error: string = null;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) { }
 
   ngOnDestroy(): void {
     if (this.closeSub) this.closeSub.unsubscribe();
+  }
+
+  onGoogleAuth() {
+    this.authService.googleAuth();
   }
 
   onHandleError() {
@@ -52,9 +55,9 @@ export class AuthComponent implements OnDestroy {
     let authObservable: Observable<AuthResponseData>;
 
     if (this.isLoginMode) {
-      authObservable = this.authService.login(email, password);
+      authObservable = this.authService.emailLogin(email, password);
     } else {
-      authObservable = this.authService.signup(email, password);
+      authObservable = this.authService.emailSignup(email, password);
     }
 
     authObservable.subscribe({
