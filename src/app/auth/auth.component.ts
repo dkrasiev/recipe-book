@@ -36,7 +36,7 @@ export class AuthComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     if (this.closeSub) this.closeSub.unsubscribe();
-    this.storeSub.unsubscribe();
+    if (this.storeSub) this.storeSub.unsubscribe();
   }
 
   onGoogleAuth() {
