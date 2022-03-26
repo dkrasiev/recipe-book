@@ -10,32 +10,16 @@ import * as shoppingListActions from './store/shopping-list.actions';
   templateUrl: './shopping-list.component.html',
   styleUrls: ['./shopping-list.component.css'],
 })
-export class ShoppingListComponent implements OnInit, OnDestroy {
+export class ShoppingListComponent implements OnInit {
   ingredients: Observable<{ ingredients: Ingredient[] }>;
-  private ingredientSubscription: Subscription;
 
   constructor(private store: Store<fromApp.AppState>) {}
 
   ngOnInit(): void {
     this.ingredients = this.store.select('shoppingList');
-
-    // this.ingredients = this.shoppingListService.getIngredients();
-    // this.ingredientSubscription =
-    //   this.shoppingListService.ingredientsChanged.subscribe(() =>
-    //     this.onIngredientAdded()
-    //   );
-  }
-
-  ngOnDestroy(): void {
-    this.ingredientSubscription.unsubscribe();
-  }
-
-  onIngredientAdded() {
-    // this.ingredients = this.shoppingListService.getIngredients();
   }
 
   onEditItem(id: number) {
     this.store.dispatch(new shoppingListActions.StartEdit(id));
-    // this.shoppingListService.startedEditing.next(id);
   }
 }
