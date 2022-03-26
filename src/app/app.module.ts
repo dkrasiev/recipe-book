@@ -12,6 +12,8 @@ import { HeaderComponent } from './header/header.component';
 import { RecipesModule } from './recipes/recipes.module';
 import { SharedModule } from './shared/shared.module';
 import { ShoppingListModule } from './shopping-list/shopping-list.module';
+import { StoreModule } from '@ngrx/store';
+import { ShoppingListReducer } from './shopping-list/store/shopping-list.reducer';
 
 @NgModule({
   declarations: [AppComponent, HeaderComponent],
@@ -23,6 +25,7 @@ import { ShoppingListModule } from './shopping-list/shopping-list.module';
     ShoppingListModule,
     AuthModule,
     SharedModule,
+    StoreModule.forRoot({ shoppingList: ShoppingListReducer }),
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireAuthModule,
   ],
