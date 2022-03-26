@@ -1,10 +1,10 @@
 import { Action } from '@ngrx/store';
 import { User } from '../user.model';
 
-export const LOGIN = 'LOGIN';
-export const LOGOUT = 'LOGOUT';
-export const CATCH_ERROR = 'CATCH_ERROR';
-export const HANDLE_ERROR = 'HANDLE_ERROR';
+export const LOGIN = '[Auth] Login';
+export const LOGOUT = '[Auth] Logout';
+export const CATCH_ERROR = '[Auth] Catch Error';
+export const HANDLE_ERROR = '[Auth] Handle Error';
 
 export class Login implements Action {
   readonly type = LOGIN;
