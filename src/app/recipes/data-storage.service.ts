@@ -1,45 +1,37 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { AngularFireDatabase } from '@angular/fire/compat/database';
 import { Store } from '@ngrx/store';
 import { map, tap } from 'rxjs';
-import { environment } from 'src/environments/environment';
-import { AuthService } from '../auth/auth.service';
 import * as fromApp from '../store/app.reducer';
 import { Recipe } from './recipe.model';
 import { RecipeService } from './recipe.service';
 
 @Injectable({ providedIn: 'root' })
 export class DataStorageService {
-  uid: string = null;
-  get userStorageURL() {
-    if (!this.uid) {
-      return null;
+  private uid = null;
+  private get getRecipesRef() {
+    if (this.uid) {
+      return this.db.object<Recipe[]>('users/' + this.uid + '/recipes');
     }
-
-    return (
-      environment.firebase.databaseURL + '/users/' + this.uid + '/recipes.json'
-    );
+    return null;
   }
 
   constructor(
-    private http: HttpClient,
     private recipeService: RecipeService,
+    private db: AngularFireDatabase,
     private store: Store<fromApp.AppState>
   ) {
-    this.store
-      .select('auth')
-      .pipe(map((authState) => authState.user))
-      .subscribe((user) => {
-        if (user) {
-          this.uid = user.id;
-        } else {
-          this.uid = null;
-        }
-      });
+    this.store.select('auth').subscribe((authData) => {
+      if (authData.user.id) {
+        this.uid = authData.user.id;
+      } else {
+        this.uid = null;
+      }
+    });
   }
 
   fetchRecipes() {
-    return this.http.get<Recipe[]>(this.userStorageURL).pipe(
+    return this.getRecipesRef.valueChanges().pipe(
       map((recipes) => {
         return recipes.map((recipe) => {
           return {
@@ -50,13 +42,30 @@ export class DataStorageService {
       }),
       tap((recipes) => {
         this.recipeService.setRecipes(recipes);
+        console.log(recipes);
       })
     );
+
+    // return this.http.get<Recipe[]>(environment.firebase.databaseURL + '/recipes.json').pipe(
+    //   map((recipes) => {
+    //     return recipes.map((recipe) => {
+    //       return {
+    //         ...recipe,
+    //         ingredients: recipe.ingredients ? recipe.ingredients : [],
+    //       };
+    //     });
+    //   }),
+    //   tap((recipes) => {
+    //     this.recipeService.setRecipes(recipes);
+    //   })
+    // );
   }
 
   saveRecipes() {
-    const recipes = this.recipeService.getRecipes();
+    return this.getRecipesRef.set(this.recipeService.getRecipes());
 
-    return this.http.put<Recipe[]>(this.userStorageURL, recipes);
+    // const recipes = this.recipeService.getRecipes();
+
+    // return this.http.put<Recipe[]>(this.userStorageURL, recipes);
   }
 }
