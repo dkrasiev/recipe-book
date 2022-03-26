@@ -2,9 +2,11 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
-import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { BehaviorSubject, catchError, tap, throwError } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { Store } from '@ngrx/store';
+import firebase from 'firebase/compat/app';
+import { throwError } from 'rxjs';
+import * as fromApp from '../store/app.reducer';
+import * as authActions from './store/auth.actions';
 import { User } from './user.model';
 
 export interface AuthResponseData {
@@ -18,21 +20,18 @@ export interface AuthResponseData {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  user = new BehaviorSubject<User>(null);
   logoutTimer;
 
   constructor(
     private http: HttpClient,
     private router: Router,
-    private afAuth: AngularFireAuth
+    private auth: AngularFireAuth,
+    private store: Store<fromApp.AppState>
   ) {}
 
   googleAuth() {
-    this.authLogin(getAuth(), new GoogleAuthProvider());
-  }
-
-  private authLogin(auth, provider) {
-    signInWithPopup(auth, provider)
+    this.auth
+      .signInWithPopup(new firebase.auth.GoogleAuthProvider())
       .then((result) => {
         const email = result.user.email;
         const id = result.user.uid;
@@ -42,57 +41,40 @@ export class AuthService {
         });
       })
       .catch((error) => {
-        // Handle Errors here.
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // The email of the user's account used.
-        const email = error.email;
-        // The AuthCredential type that was used.
-        const credential = GoogleAuthProvider.credentialFromError(error);
-        // ...
+        this.handleError(error);
       });
   }
 
   emailSignup(email: string, password: string) {
-    return this.http
-      .post<AuthResponseData>(
-        'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' +
-          environment.firebase.apiKey,
-        {
-          email: email,
-          password: password,
-          returnSecureToken: true,
-        }
-      )
-      .pipe(catchError(this.handleError));
+    this.auth
+      .createUserWithEmailAndPassword(email, password)
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((error) => {
+        this.handleError(error);
+      });
   }
 
   emailLogin(email: string, password: string) {
-    return this.http
-      .post<AuthResponseData>(
-        'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' +
-          environment.firebase.apiKey,
-        {
-          email: email,
-          password: password,
-          returnSecureToken: true,
-        }
-      )
-      .pipe(
-        catchError(this.handleError),
-        tap((res) => {
-          this.handleAuthentication(
-            res.email,
-            res.localId,
-            res.idToken,
-            +res.expiresIn
-          );
-        })
-      );
+    this.auth
+      .signInWithEmailAndPassword(email, password)
+      .then((result) => {
+        const email = result.user.email;
+        const uid = result.user.uid;
+        const photoURL = result.user.photoURL;
+
+        result.user.getIdToken().then((token) => {
+          this.handleAuthentication(email, uid, token, 3600, photoURL);
+        });
+      })
+      .catch((error) => {
+        this.handleError(error);
+      });
   }
 
   logout() {
-    this.user.next(null);
+    this.store.dispatch(new authActions.Logout());
     this.router.navigate(['/login']);
     localStorage.removeItem('userData');
   }
@@ -119,7 +101,7 @@ export class AuthService {
     );
 
     if (loadedUser.token) {
-      this.user.next(loadedUser);
+      this.store.dispatch(new authActions.Login(loadedUser));
       this.autoLogout(
         new Date(userData._tokenExpirationDate).getTime() - new Date().getTime()
       );
@@ -147,34 +129,14 @@ export class AuthService {
 
     const user = new User(email, userId, token, expirationDate, photoURL);
 
-    this.user.next(user);
+    this.store.dispatch(new authActions.Login(user));
     this.autoLogout(expiresIn * 1000);
     localStorage.setItem('userData', JSON.stringify(user));
     this.router.navigate(['/recipes']);
   }
 
-  private handleError(e: HttpErrorResponse) {
-    let errorMessage = 'An error occured!';
-
-    if (!e.error || !e.error.error) {
-      throwError(() => new Error('An unknown error'));
-    }
-
-    switch (e.error.error.message) {
-      case 'EMAIL_EXISTS':
-        errorMessage = 'This email exists already';
-        break;
-      case 'EMAIL_NOT_FOUND':
-        errorMessage = 'This Email does not exist';
-        break;
-      case 'INVALID_PASSWORD':
-        errorMessage = 'Password is invalid';
-        break;
-      case 'USER_DISABLED':
-        errorMessage = 'This account has been banned';
-        break;
-    }
-
-    return throwError(() => new Error(errorMessage));
+  private handleError(e: any) {
+    this.store.dispatch(new authActions.CatchError(e.message));
+    throwError(() => e);
   }
 }

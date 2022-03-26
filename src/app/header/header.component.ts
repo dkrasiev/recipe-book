@@ -1,8 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { DataStorageService } from '../recipes/data-storage.service';
 import { RecipeService } from '../recipes/recipe.service';
+import * as fromApp from '../store/app.reducer';
 
 @Component({
   selector: 'app-header',
@@ -27,7 +29,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   constructor(
     private dataStorageService: DataStorageService,
     private recipeService: RecipeService,
-    private authService: AuthService
+    private authService: AuthService,
+    private store: Store<fromApp.AppState>
   ) {}
 
   ngOnInit(): void {
@@ -35,7 +38,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
       if (this.autosave) this.onSaveData();
     });
 
-    this.authService.user.subscribe((user) => {
+    this.store.select('auth').subscribe((authState) => {
+      const user = authState.user;
       if (user) {
         this.username = user.email;
         if (user.photoURL) {
