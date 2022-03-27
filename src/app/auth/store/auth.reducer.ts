@@ -22,12 +22,16 @@ export function AuthReducer(
       return { ...state, isLoading: true };
     case authActions.LOGIN_START:
       return { ...state, isLoading: true };
-    case authActions.LOGIN_SUCCESS:
-      return { ...state, user: action.payload, isLoading: false };
-    case authActions.LOGIN_FAIL:
+    case authActions.AUTH_SUCCESS:
+      return { ...state, user: action.payload, isLoading: false, error: null };
+    case authActions.AUTH_FAIL:
       return { ...state, error: action.payload, isLoading: false };
     case authActions.LOGOUT:
       return { ...state, user: null };
+    case authActions.SIGNUP_START:
+      return { ...state, isLoading: true };
+    case authActions.HANDLE_ERROR:
+      return { ...state, error: null };
     default:
       return state;
   }

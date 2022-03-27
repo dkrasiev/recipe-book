@@ -5,6 +5,7 @@ import { AuthService } from '../auth/auth.service';
 import { DataStorageService } from '../recipes/data-storage.service';
 import { RecipeService } from '../recipes/recipe.service';
 import * as fromApp from '../store/app.reducer';
+import * as authActions from '../auth/store/auth.actions';
 
 @Component({
   selector: 'app-header',
@@ -29,7 +30,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   constructor(
     private dataStorageService: DataStorageService,
     private recipeService: RecipeService,
-    private authService: AuthService,
     private store: Store<fromApp.AppState>
   ) {}
 
@@ -71,11 +71,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       .catch((error) => {
         console.log(error);
       });
-
-    // this.dataStorageService.saveRecipes().subscribe({
-    //   next: () => this.showMessage('Saved!'),
-    //   error: (e) => this.showMessage(e.statusText),
-    // });
   }
 
   onFetchData() {
@@ -86,7 +81,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   onLogout() {
-    this.authService.logout();
+    this.store.dispatch(new authActions.Logout());
   }
 
   showMessage(message: string, timeout: number = 2000) {

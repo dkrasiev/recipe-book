@@ -5,7 +5,6 @@ import { Subscription } from 'rxjs';
 import { AlertComponent } from '../shared/alert/alert.component';
 import { PlaceholderDirective } from '../shared/placeholder.directive';
 import * as fromApp from '../store/app.reducer';
-import { AuthService } from './auth.service';
 import * as authActions from './store/auth.actions';
 
 @Component({
@@ -22,10 +21,7 @@ export class AuthComponent implements OnDestroy {
   isLoginMode = true;
   isLoading = false;
 
-  constructor(
-    private authService: AuthService,
-    private store: Store<fromApp.AppState>
-  ) {
+  constructor(private store: Store<fromApp.AppState>) {
     this.store.select('auth').subscribe((authData) => {
       if (authData.error) this.showError(authData.error);
       this.isLoading = authData.isLoading;
@@ -56,13 +52,12 @@ export class AuthComponent implements OnDestroy {
 
     const email = form.value.email;
     const password = form.value.password;
+    const credentials = { email: email, password: password };
 
     if (this.isLoginMode) {
-      this.store.dispatch(
-        new authActions.LoginStart({ email: email, password: password })
-      );
+      this.store.dispatch(new authActions.LoginStart(credentials));
     } else {
-      this.authService.emailSignup(email, password);
+      this.store.dispatch(new authActions.SignupStart(credentials));
     }
   }
 
