@@ -27,10 +27,8 @@ export class AuthComponent implements OnDestroy {
     private store: Store<fromApp.AppState>
   ) {
     this.store.select('auth').subscribe((authData) => {
-      if (authData.error) {
-        this.showError(authData.error);
-        this.isLoading = false;
-      }
+      if (authData.error) this.showError(authData.error);
+      this.isLoading = authData.isLoading;
     });
   }
 
@@ -40,7 +38,7 @@ export class AuthComponent implements OnDestroy {
   }
 
   onGoogleAuth() {
-    this.authService.googleAuth();
+    this.store.dispatch(new authActions.GoogleLoginStart());
   }
 
   onHandleError() {
@@ -56,13 +54,13 @@ export class AuthComponent implements OnDestroy {
       throw new Error('Form is invalid');
     }
 
-    this.isLoading = true;
-
     const email = form.value.email;
     const password = form.value.password;
 
     if (this.isLoginMode) {
-      this.authService.emailLogin(email, password);
+      this.store.dispatch(
+        new authActions.LoginStart({ email: email, password: password })
+      );
     } else {
       this.authService.emailSignup(email, password);
     }

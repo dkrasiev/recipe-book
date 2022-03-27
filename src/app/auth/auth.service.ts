@@ -101,7 +101,7 @@ export class AuthService {
     );
 
     if (loadedUser.token) {
-      this.store.dispatch(new authActions.Login(loadedUser));
+      this.store.dispatch(new authActions.LoginSuccess(loadedUser));
       this.autoLogout(
         new Date(userData._tokenExpirationDate).getTime() - new Date().getTime()
       );
@@ -129,7 +129,7 @@ export class AuthService {
 
     const user = new User(email, userId, token, expirationDate, photoURL);
 
-    this.store.dispatch(new authActions.Login(user));
+    this.store.dispatch(new authActions.LoginSuccess(user));
     this.autoLogout(expiresIn * 1000);
     localStorage.setItem('userData', JSON.stringify(user));
     this.router.navigate(['/recipes']);

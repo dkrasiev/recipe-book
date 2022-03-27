@@ -22,7 +22,7 @@ export class DataStorageService {
     private store: Store<fromApp.AppState>
   ) {
     this.store.select('auth').subscribe((authData) => {
-      if (authData.user.id) {
+      if (authData.user) {
         this.uid = authData.user.id;
       } else {
         this.uid = null;
