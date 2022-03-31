@@ -22,7 +22,7 @@ export class LoginStart implements Action {
 
 export class AuthSuccess implements Action {
   readonly type = AUTH_SUCCESS;
-  constructor(public payload: User) {}
+  constructor(public payload: { user: User; redirect?: boolean }) {}
 }
 
 export class AuthFail implements Action {
@@ -32,25 +32,21 @@ export class AuthFail implements Action {
 
 export class Logout implements Action {
   readonly type = LOGOUT;
-
   constructor() {}
 }
 
 export class HandleError implements Action {
   readonly type = HANDLE_ERROR;
-
   constructor() {}
 }
 
 export class SignupStart implements Action {
   readonly type = SIGNUP_START;
-
   constructor(public payload: { email: string; password: string }) {}
 }
 
 export class AutoLogin implements Action {
   readonly type = AUTO_LOGIN;
-
   constructor() {}
 }
 

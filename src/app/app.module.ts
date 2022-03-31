@@ -14,6 +14,7 @@ import { AuthModule } from './auth/auth.module';
 import { AuthEffects } from './auth/store/auth.effects';
 import { HeaderComponent } from './header/header.component';
 import { RecipesModule } from './recipes/recipes.module';
+import { RecipeEffects } from './recipes/store/recipe.effects';
 import { SharedModule } from './shared/shared.module';
 import { ShoppingListModule } from './shopping-list/shopping-list.module';
 import * as fromApp from './store/app.reducer';
@@ -29,7 +30,7 @@ import * as fromApp from './store/app.reducer';
     AuthModule,
     SharedModule,
     StoreModule.forRoot(fromApp.appReducer),
-    EffectsModule.forRoot([AuthEffects]),
+    EffectsModule.forRoot([AuthEffects, RecipeEffects]),
     StoreDevtoolsModule.instrument({ logOnly: environment.production }),
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireAuthModule,

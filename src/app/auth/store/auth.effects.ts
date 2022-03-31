@@ -25,7 +25,7 @@ export class AuthEffects {
         expirationDate.getTime() - new Date().getTime()
       );
 
-      return new authActions.AuthSuccess(user);
+      return new authActions.AuthSuccess({ user: user });
     });
   };
 
@@ -79,8 +79,9 @@ export class AuthEffects {
     () => {
       return this.actions$.pipe(
         ofType(authActions.AUTH_SUCCESS),
-        tap(() => {
-          this.router.navigate(['/recipes']);
+        tap((authSuccessAction: authActions.AuthSuccess) => {
+          if (authSuccessAction.payload.redirect === true)
+            this.router.navigate(['/recipes']);
         })
       );
     },
@@ -122,7 +123,10 @@ export class AuthEffects {
         );
 
         if (loadedUser.token) {
-          return new authActions.AuthSuccess(loadedUser);
+          return new authActions.AuthSuccess({
+            user: loadedUser,
+            redirect: false,
+          });
         } else {
           return { type: 'DUMMY' };
         }

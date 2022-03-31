@@ -5,12 +5,16 @@ export interface State {
   user: User;
   error: string;
   isLoading: boolean;
+  redirect: boolean;
+  autosave: boolean;
 }
 
 const initializeState: State = {
   user: null,
   error: null,
   isLoading: false,
+  redirect: true,
+  autosave: false,
 };
 
 export function AuthReducer(
@@ -23,7 +27,13 @@ export function AuthReducer(
     case authActions.LOGIN_START:
       return { ...state, isLoading: true };
     case authActions.AUTH_SUCCESS:
-      return { ...state, user: action.payload, isLoading: false, error: null };
+      return {
+        ...state,
+        user: action.payload.user,
+        isLoading: false,
+        error: null,
+        redirect: action.payload.redirect,
+      };
     case authActions.AUTH_FAIL:
       return { ...state, error: action.payload, isLoading: false };
     case authActions.LOGOUT:
