@@ -6,11 +6,11 @@
 <hr />
 <div class="row">
   <div class="col-xs-12">
-    <p *ngIf="recipes.length < 1">
+    <p *ngIf="(recipes | async).length < 1">
       Here will be your recipes! Try to create one or fetch data
     </p>
     <app-recipe-item
-      *ngFor="let recipeElement of recipes; let i = index"
+      *ngFor="let recipeElement of recipes | async; let i = index"
       [recipeId]="i"
     ></app-recipe-item>
   </div>

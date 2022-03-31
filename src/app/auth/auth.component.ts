@@ -1,10 +1,11 @@
 import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Observable, Subscription, take } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs';
 import { AlertComponent } from '../shared/alert/alert.component';
 import { PlaceholderDirective } from '../shared/placeholder.directive';
-import { AuthResponseData, AuthService } from './auth.service';
+import * as fromApp from '../store/app.reducer';
+import * as authActions from './store/auth.actions';
 
 @Component({
   selector: 'app-auth',
@@ -15,23 +16,29 @@ export class AuthComponent implements OnDestroy {
   @ViewChild(PlaceholderDirective, { static: false })
   alertPlaceholder: PlaceholderDirective;
   closeSub: Subscription;
+  storeSub: Subscription;
 
   isLoginMode = true;
   isLoading = false;
-  error: string = null;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private store: Store<fromApp.AppState>) {
+    this.store.select('auth').subscribe((authData) => {
+      if (authData.error) this.showError(authData.error);
+      this.isLoading = authData.isLoading;
+    });
+  }
 
   ngOnDestroy(): void {
     if (this.closeSub) this.closeSub.unsubscribe();
+    if (this.storeSub) this.storeSub.unsubscribe();
   }
 
   onGoogleAuth() {
-    this.authService.googleAuth();
+    this.store.dispatch(new authActions.GoogleLoginStart());
   }
 
   onHandleError() {
-    this.error = null;
+    this.store.dispatch(new authActions.HandleError());
   }
 
   onSwitchMode() {
@@ -43,35 +50,15 @@ export class AuthComponent implements OnDestroy {
       throw new Error('Form is invalid');
     }
 
-    this.isLoading = true;
-
     const email = form.value.email;
     const password = form.value.password;
-
-    let authObservable: Observable<AuthResponseData>;
+    const credentials = { email: email, password: password };
 
     if (this.isLoginMode) {
-      authObservable = this.authService.emailLogin(email, password);
+      this.store.dispatch(new authActions.LoginStart(credentials));
     } else {
-      authObservable = this.authService.emailSignup(email, password);
+      this.store.dispatch(new authActions.SignupStart(credentials));
     }
-
-    authObservable.subscribe({
-      next: () => {
-        const user = this.authService.user.pipe(take(1)).subscribe();
-
-        if (user) {
-          this.router.navigate(['/recipes']);
-        }
-
-        this.isLoading = false;
-      },
-      error: (e) => {
-        this.error = e.message;
-        this.showError(e.message);
-        this.isLoading = false;
-      },
-    });
   }
 
   showError(message: string) {
@@ -83,6 +70,7 @@ export class AuthComponent implements OnDestroy {
     this.closeSub = alertRef.instance.close.subscribe(() => {
       this.closeSub.unsubscribe();
       this.alertPlaceholder.viewContainerRef.clear();
+      this.onHandleError();
     });
   }
 }

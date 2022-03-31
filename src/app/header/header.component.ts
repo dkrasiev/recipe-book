@@ -1,8 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { AuthService } from '../auth/auth.service';
-import { DataStorageService } from '../recipes/data-storage.service';
-import { RecipeService } from '../recipes/recipe.service';
+import { Actions, ofType } from '@ngrx/effects';
+import { Action, Store } from '@ngrx/store';
+import { Subscription, tap } from 'rxjs';
+import * as authActions from '../auth/store/auth.actions';
+import * as recipesActions from '../recipes/store/recipe.actions';
+import * as fromApp from '../store/app.reducer';
 
 @Component({
   selector: 'app-header',
@@ -10,12 +12,12 @@ import { RecipeService } from '../recipes/recipe.service';
   styleUrls: ['header.component.css'],
 })
 export class HeaderComponent implements OnInit, OnDestroy {
-  userSubscription: Subscription;
-  recipesSubscription: Subscription;
-  dataStorageSubscription: Subscription;
+  authSub: Subscription;
+  recipesSub: Subscription;
+  saveLoadSub: Subscription;
   messageTimeout;
 
-  autosave: boolean = false;
+  autosave: boolean;
   username: string = null;
   photoURL: string = null;
   message: string = null;
@@ -25,17 +27,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   constructor(
-    private dataStorageService: DataStorageService,
-    private recipeService: RecipeService,
-    private authService: AuthService
+    private store: Store<fromApp.AppState>,
+    private actions$: Actions
   ) {}
 
   ngOnInit(): void {
-    this.recipeService.recipesChanged.subscribe(() => {
-      if (this.autosave) this.onSaveData();
-    });
-
-    this.authService.user.subscribe((user) => {
+    this.authSub = this.store.select('auth').subscribe((authState) => {
+      const user = authState.user;
       if (user) {
         this.username = user.email;
         if (user.photoURL) {
@@ -45,38 +43,54 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.username = null;
         this.photoURL = null;
       }
+
+      this.autosave = authState.autosave;
+    });
+
+    this.saveLoadSub = this.actions$
+      .pipe(
+        ofType(recipesActions.RECIPES_SAVED, recipesActions.SET_RECIPES),
+        tap((action: Action) => {
+          console.log(action);
+
+          if (action.type === recipesActions.RECIPES_SAVED) {
+            this.showMessage('Saved!');
+          } else {
+            this.showMessage('Loaded');
+          }
+        })
+      )
+      .subscribe();
+
+    this.recipesSub = this.store.select('recipes').subscribe((recipesState) => {
+      this.autosave = recipesState.autosave;
     });
   }
 
   ngOnDestroy(): void {
-    this.userSubscription.unsubscribe();
-    this.recipesSubscription.unsubscribe();
-    this.dataStorageSubscription.unsubscribe();
+    if (this.authSub) this.authSub.unsubscribe();
+    if (this.saveLoadSub) this.saveLoadSub.unsubscribe();
+    if (this.recipesSub) this.recipesSub.unsubscribe();
   }
 
   toggleAutosave() {
-    this.autosave = !this.autosave;
+    this.store.dispatch(new recipesActions.ToggleAutosave());
   }
 
   onSaveData() {
-    this.dataStorageService.saveRecipes().subscribe({
-      next: () => this.showMessage('Saved!'),
-      error: (e) => this.showMessage(e.statusText),
-    });
+    this.store.dispatch(new recipesActions.SaveRecipes());
   }
 
   onFetchData() {
-    this.dataStorageService.fetchRecipes().subscribe({
-      next: () => this.showMessage('Loaded!'),
-      error: (e) => this.showMessage(e.statusText),
-    });
+    this.store.dispatch(new recipesActions.FetchRecipes());
   }
 
   onLogout() {
-    this.authService.logout();
+    this.store.dispatch(new authActions.Logout());
   }
 
   showMessage(message: string, timeout: number = 2000) {
+    console.log(message);
     this.message = message;
 
     if (this.messageTimeout) {
