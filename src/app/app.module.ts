@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreModule } from '@ngrx/store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
@@ -23,6 +24,7 @@ import * as fromApp from './store/app.reducer';
   declarations: [AppComponent, HeaderComponent],
   imports: [
     BrowserModule.withServerTransition({ appId: 'serverApp' }),
+    BrowserAnimationsModule,
     HttpClientModule,
     AppRoutingModule,
     RecipesModule,
